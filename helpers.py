@@ -1,3 +1,5 @@
+# Helper functions for weed identification subteam
+
 import cv2
 import numpy as np
 
@@ -6,7 +8,7 @@ def get_green(orig_img: np.ndarray) -> np.ndarray:
     Given numpy array representation of image, return an image with the green parts isolated.
 
     Args:
-        orig_img: original image in numpy array form
+        orig_img: original image in numpy array form (width x height x 3)
     
     Returns:
         green_areas: numpy array representing the green-isolated image
@@ -26,3 +28,23 @@ def get_green(orig_img: np.ndarray) -> np.ndarray:
     green_areas = cv2.bitwise_and(orig_img, orig_img, mask=mask)
 
     return green_areas
+
+def black_white_to_cartesian(bnw_array: np.ndarray) -> list:
+    """
+    Given numpy array of 0s and 255s that represent a black and white image (width x height), 
+    return two lists that have the x and y coordinates of white areas.
+
+    Args:
+        colormap: black and white image that only have values [0, 255]
+
+    Returns:
+        xs: list of x coordinates of black areas
+        ys: list of y coordinates of white areas
+    """
+    xs,ys = [],[]
+    for y, row in enumerate(bnw_array):
+        for x, value in enumerate(row):
+            if value == 255:
+                xs.append(x)
+                ys.append(abs(y-bnw_array.shape[0]))
+    return xs,ys
