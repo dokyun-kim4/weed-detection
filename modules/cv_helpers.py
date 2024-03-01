@@ -29,7 +29,7 @@ def get_green(orig_img: np.ndarray) -> np.ndarray:
 
     return green_areas
 
-def black_white_to_cartesian(bnw_array: np.ndarray) -> list:
+def binary_to_cartesian(bnw_array: np.ndarray) -> list:
     """
     Given numpy array of 0s and 255s that represent a black and white image (width x height), 
     return two lists that have the x and y coordinates of white areas.
