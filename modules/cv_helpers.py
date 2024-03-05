@@ -118,7 +118,7 @@ def find_cluster_centers(white_points, dbscan_result):
     return cluster_centers
 
 
-def plot_boxes(image, bounding_boxes):
+def plot_boxes(image_with_boxes, bounding_boxes):
     """
     Plot bounding boxes around each cluster on the image.
 
@@ -128,11 +128,11 @@ def plot_boxes(image, bounding_boxes):
     """
     for box in bounding_boxes:
         (min_x, min_y), (max_x, max_y) = box
-        cv2.rectangle(image, (min_x, min_y), (max_x, max_y), (0, 0, 255), 2)
-    return image
+        cv2.rectangle(image_with_boxes, (min_x, min_y), (max_x, max_y), (0, 0, 255), 2)
+    return image_with_boxes
 
 
-def plot_centers(image, cluster_centers):
+def plot_centers(image_with_centers, cluster_centers):
     """
     Plot cluster centers on the image.
 
@@ -142,5 +142,7 @@ def plot_centers(image, cluster_centers):
     """
     for center in cluster_centers:
         x, y = center.astype(int)
-        cv2.circle(image, (x, y), radius=5, color=(255, 0, 0), thickness=-1)
-    return image
+        cv2.circle(
+            image_with_centers, (x, y), radius=5, color=(255, 0, 0), thickness=-1
+        )
+    return image_with_centers
