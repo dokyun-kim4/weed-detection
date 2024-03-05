@@ -2,7 +2,7 @@
 
 import cv2
 import numpy as np
-from scipy.stats import moment
+from io import BytesIO, BufferedReader
 
 def get_green(orig_img: np.ndarray) -> np.ndarray:
     """
@@ -50,23 +50,10 @@ def binary_to_cartesian(bnw_array: np.ndarray) -> list:
                 ys.append(abs(y-bnw_array.shape[0]))
     return xs,ys
 
-def find_centroid_of_blob(x: list, y: list):
-    """
-    Given a list of x and y coordinates of white points, return the centroid 
-    of the white blob
-
-    PARAMETERS
-    ----------
-        x: list
-            list of x-coords
-        y: list
-            list of y-coords
-
-    RETURNS
-    -------
-        Returns the centroid coordinates as a tuple: (x_coords, y_coords)
-    """
-    M00 = len(x)
-    M10 = sum(x)
-    M01 = sum(y)
-    return M10/M00, M01/M00
+def arr_to_io_buffered_reader(img_arr):
+    ret, img_encode = cv2.imencode('.jpg', img_arr)
+    str_encode = img_encode.tostring()
+    img_byteio = BytesIO(str_encode)
+    img_byteio.name = 'img.jpg'
+    reader = BufferedReader(img_byteio)
+    return reader
