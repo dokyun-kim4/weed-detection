@@ -13,7 +13,7 @@ def load_plant_data(Img_Path, Organ):
     path = Img_Path
     image_data = open(path, 'rb')
     data = { 'organs': [Organ] }
-    files = [('images', (path, image_data)),]  
+    files = [('images', (image_data)),]  
     return data, files
 
 def Send_API_Request(url, files, data):
