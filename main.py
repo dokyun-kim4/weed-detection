@@ -10,7 +10,7 @@ import modules.plantnet_helpers as ph
 dbscan_model = DBSCAN(eps=5, min_samples=10)
 
 # Read in image
-image = cv.imread("./img/lettuce_test.png")
+image = cv.imread("./img/img1.png")
 
 # TODO
 # video camera trigger
@@ -26,26 +26,23 @@ bnw_image = ch.green_to_bnw(img_denoised)
 white_points = ch.binary_to_cartesian(bnw_image)
 # TODO
 # ----- Perform DBscan -------
-
-# This doesnt work but
-clusters = ch.DBSCAN(white_points)
-
+clusters = ch.DBSCAN_clustering(white_points)
 # This works?
-dbscan_model = DBSCAN(eps=5, min_samples=10)
+#dbscan_model = DBSCAN(eps=5, min_samples=10)
 
 # train the model
-dbscan_model.fit(white_points)
+#dbscan_model.fit(white_points)
 # assign each data point to a cluster
-dbscan_result = dbscan_model.fit_predict(white_points)
-print(dbscan_result)
+#clusters = dbscan_model.fit_predict(white_points)
+#print(dbscan_result)
 
 # Find bbox and center points
 
 bbox_and_center = [
     (bbox, center)
     for bbox, center in zip(
-        ch.find_bounding_boxes(bnw_image, clusters),
-        ch.find_cluster_centers(bnw_image, clusters),
+        ch.find_bounding_boxes(white_points, clusters),
+        ch.find_cluster_centers(white_points, clusters),
     )
 ]
 

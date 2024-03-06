@@ -5,6 +5,7 @@ import numpy as np
 from io import BytesIO, BufferedReader
 import copy
 from sklearn.cluster import DBSCAN
+import matplotlib.pyplot as plt
 
 
 def get_green(orig_img: np.ndarray) -> np.ndarray:
