@@ -33,16 +33,18 @@ def get_green(orig_img: np.ndarray) -> np.ndarray:
 
     return green_areas
 
+
 def green_to_bnw(green_areas_denoised: np.ndarray) -> np.ndarray:
     # TODO
     # Add docstrings
-    glayer = green_areas_denoised[:,:,1]
+    glayer = green_areas_denoised[:, :, 1]
     bnw = copy.deepcopy(glayer)
     for i in range(bnw.shape[0]):
         for j in range(bnw.shape[1]):
             if bnw[i, j] > 0:
                 bnw[i, j] = 255
     return bnw
+
 
 def binary_to_cartesian(bnw_array: np.ndarray) -> list:
     """
@@ -59,13 +61,16 @@ def binary_to_cartesian(bnw_array: np.ndarray) -> list:
     for y, row in enumerate(bnw_array):
         for x, value in enumerate(row):
             if value == 255:
-                xys.append([x,abs(y - bnw_array.shape[0])])    
-    return xys
+                xys.append([x, abs(y - bnw_array.shape[0])])
 
-def DBSCAN_clustering(white_points):
+    print("added")
+    return np.array(xys)
+
+
+def DBSCAN_clustering(white_points) -> list:
     """
     Given an array with two columns which stores x and y values representing
-    white points in the denoised image, return an array where each row 
+    white points in the denoised image, return an array where each row
     classifies which cluster a point is in (same amount of rows as the white
     points array)
 
