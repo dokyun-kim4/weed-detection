@@ -3,6 +3,7 @@
 import cv2
 import numpy as np
 from io import BytesIO, BufferedReader
+import copy
 
 
 def get_green(orig_img: np.ndarray) -> np.ndarray:
@@ -31,6 +32,16 @@ def get_green(orig_img: np.ndarray) -> np.ndarray:
 
     return green_areas
 
+def green_to_bnw(green_areas_denoised: np.ndarray) -> np.ndarray:
+    # TODO
+    # Add docstrings
+    glayer = green_areas_denoised[:,:,1]
+    bnw = copy.deepcopy(glayer)
+    for i in range(bnw.shape[0]):
+        for j in range(bnw.shape[1]):
+            if bnw[i, j] > 0:
+                bnw[i, j] = 255
+    return bnw
 
 def binary_to_cartesian(bnw_array: np.ndarray) -> list:
     """
@@ -41,16 +52,14 @@ def binary_to_cartesian(bnw_array: np.ndarray) -> list:
         colormap: black and white image that only have values [0, 255]
 
     Returns:
-        xs: list of x coordinates of black areas
-        ys: list of y coordinates of white areas
+        xys: 2d array that contains [x,y] points of all white areas
     """
-    xs, ys = [], []
+    xys = []
     for y, row in enumerate(bnw_array):
         for x, value in enumerate(row):
             if value == 255:
-                xs.append(x)
-                ys.append(abs(y - bnw_array.shape[0]))
-    return xs, ys
+                xys.append([x,abs(y - bnw_array.shape[0])])    
+    return xys
 
 
 def find_bounding_boxes(white_points, dbscan_result):
