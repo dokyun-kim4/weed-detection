@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 from io import BytesIO, BufferedReader
 import copy
+from sklearn.cluster import DBSCAN
 
 
 def get_green(orig_img: np.ndarray) -> np.ndarray:
@@ -60,6 +61,27 @@ def binary_to_cartesian(bnw_array: np.ndarray) -> list:
             if value == 255:
                 xys.append([x,abs(y - bnw_array.shape[0])])    
     return xys
+
+def DBSCAN_clustering(white_points):
+    """
+    Given an array with two columns which stores x and y values representing
+    white points in the denoised image, return an array where each row 
+    classifies which cluster a point is in (same amount of rows as the white
+    points array)
+
+    PARAMETERS
+    ----------
+        white_points: list
+            arr with each row containing two values representing x and y values
+
+    RETURNS
+    -------
+        A n by 1 arr
+    """
+    dbscan_model = DBSCAN(eps=5, min_samples=10)
+    dbscan_model.fit(white_points)
+    dbscan_result = dbscan_model.fit_predict(white_points)
+    return dbscan_result
 
 
 def find_bounding_boxes(white_points, dbscan_result):
