@@ -52,6 +52,7 @@ def binary_to_cartesian(bnw_array: np.ndarray) -> list:
                 ys.append(abs(y - bnw_array.shape[0]))
     return xs, ys
 
+
 def find_bounding_boxes(white_points, dbscan_result):
     """
     Find the bounding box for each cluster.
@@ -125,6 +126,25 @@ def plot_centers(image_with_centers, cluster_centers):
     return image_with_centers
 
 
+def return_image_array(box, image):
+    """
+    Returns an array of an image defined by the specified bounding box.
+
+    Parameters:
+        box (tuple): A tuple containing two tuples representing the coordinates of the top-left and bottom-right corners of the bounding box.
+        image (numpy.ndarray): The input image from which the sub-array is extracted.
+
+    Returns:
+        numpy.ndarray or None: An array of the image defined by the bounding box. Returns None if the box width or height is non-positive.
+    """
+    (min_x, min_y), (max_x, max_y) = box
+    box_width = max_x - min_x
+    box_height = max_y - min_y
+
+    if box_width > 0 or box_height > 0:
+        return image[min_y:max_y, min_x:max_x]
+
+
 def arr_to_io_buffered_reader(img_arr):
     """
     Given a numpy arr of an image, return the buffered reader to put into a
@@ -139,9 +159,9 @@ def arr_to_io_buffered_reader(img_arr):
     -------
         BufferedReader
     """
-    ret, img_encode = cv2.imencode('.jpg', img_arr)
+    ret, img_encode = cv2.imencode(".jpg", img_arr)
     str_encode = img_encode.tostring()
     img_byteio = BytesIO(str_encode)
-    img_byteio.name = 'img.jpg'
+    img_byteio.name = "img.jpg"
     reader = BufferedReader(img_byteio)
     return reader
