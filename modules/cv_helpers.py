@@ -44,7 +44,7 @@ def green_to_bnw(green_areas_denoised: np.ndarray) -> np.ndarray:
         for j in range(bnw.shape[1]):
             if bnw[i, j] > 0:
                 bnw[i, j] = 255
-    return bnw
+    return np.stack((bnw, bnw, bnw), axis=2)
 
 
 def binary_to_cartesian(bnw_array: np.ndarray) -> list:
@@ -58,13 +58,14 @@ def binary_to_cartesian(bnw_array: np.ndarray) -> list:
     Returns:
         xys: 2d array that contains [x,y] points of all white areas
     """
+
+    # print(np.unique)
     xys = []
     for y, row in enumerate(bnw_array):
         for x, value in enumerate(row):
             if value == 255:
                 xys.append([x, abs(y - bnw_array.shape[0])])
 
-    print("added")
     return np.array(xys)
 
 
@@ -129,7 +130,7 @@ def find_cluster_centers(white_points, dbscan_result):
     for cluster_label in np.unique(dbscan_result):
         cluster_points = white_points[dbscan_result == cluster_label]
         cluster_center = np.mean(cluster_points, axis=0)
-        cluster_centers.append(cluster_center)
+        cluster_centers.append(np.round(cluster_center, 0))
     return cluster_centers
 
 
@@ -141,9 +142,16 @@ def plot_boxes(image_with_boxes, bounding_boxes):
         image (numpy.ndarray): Input image.
         bounding_boxes (list): List of bounding boxes for each cluster.
     """
+    print("bluh")
     for box in bounding_boxes:
         (min_x, min_y), (max_x, max_y) = box
-        cv2.rectangle(image_with_boxes, (min_x, min_y), (max_x, max_y), (0, 0, 255), 2)
+        cv2.rectangle(
+            image_with_boxes,
+            (min_x, abs(min_y - image_with_boxes.shape[0])),
+            (max_x, abs(max_y - image_with_boxes.shape[0])),
+            (0, 0, 255),
+            2,
+        )
     return image_with_boxes
 
 
@@ -156,9 +164,13 @@ def plot_centers(image_with_centers, cluster_centers):
         cluster_centers (list): List of cluster centers.
     """
     for center in cluster_centers:
-        x, y = center.astype(int)
+        (x, y) = center.astype(int)
         cv2.circle(
-            image_with_centers, (x, y), radius=5, color=(255, 0, 0), thickness=-1
+            image_with_centers,
+            (x, abs(y - image_with_centers.shape[0])),
+            radius=5,
+            color=(255, 0, 0),
+            thickness=-1,
         )
     return image_with_centers
 
