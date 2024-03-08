@@ -59,7 +59,6 @@ def binary_to_cartesian(bnw_array: np.ndarray) -> list:
         xys: 2d array that contains [x,y] points of all white areas
     """
 
-    # print(np.unique)
     xys = []
     for y, row in enumerate(bnw_array):
         for x, value in enumerate(row):
@@ -142,7 +141,6 @@ def plot_boxes(image_with_boxes, bounding_boxes):
         image (numpy.ndarray): Input image.
         bounding_boxes (list): List of bounding boxes for each cluster.
     """
-    print("bluh")
     for box in bounding_boxes:
         (min_x, min_y), (max_x, max_y) = box
         cv2.rectangle(
@@ -175,28 +173,30 @@ def plot_centers(image_with_centers, cluster_centers):
     return image_with_centers
 
 
-def return_image_array(box, image):
+def return_image_array(box, image, min_size):
     """
     Returns an array of an image defined by the specified bounding box.
 
     Parameters:
         box (tuple): A tuple containing two tuples representing the coordinates of the top-left and bottom-right corners of the bounding box.
         image (numpy.ndarray): The input image from which the sub-array is extracted.
+        min_size (int): Minimum area the bounding box should have for it to be considered a full plant
 
     Returns:
         numpy.ndarray or None: An array of the image defined by the bounding box. Returns None if the box width or height is non-positive.
     """
     (min_x, min_y), (max_x, max_y) = box
-    print((min_x, min_y), (max_x, max_y))
-    print(f"{max_y} - {image.shape[0]}")
 
     min_y = abs(min_y - image.shape[0])
     max_y = abs(max_y - image.shape[0])
     box_width = max_x - min_x
     box_height = max_y - min_y
-
+    area = box_width * box_width
     if box_width > 0 or box_height > 0:
-        return image[max_y:min_y, min_x:max_x]
+        if area > min_size:
+            return image[max_y:min_y, min_x:max_x]
+        else:
+            return None
 
 
 def arr_to_io_buffered_reader(img_arr):
