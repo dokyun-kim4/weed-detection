@@ -187,11 +187,16 @@ def return_image_array(box, image):
         numpy.ndarray or None: An array of the image defined by the bounding box. Returns None if the box width or height is non-positive.
     """
     (min_x, min_y), (max_x, max_y) = box
+    print((min_x, min_y), (max_x, max_y))
+    print(f"{max_y} - {image.shape[0]}")
+
+    min_y = abs(min_y - image.shape[0])
+    max_y = abs(max_y - image.shape[0])
     box_width = max_x - min_x
     box_height = max_y - min_y
 
     if box_width > 0 or box_height > 0:
-        return image[min_y:max_y, min_x:max_x]
+        return image[max_y:min_y, min_x:max_x]
 
 
 def arr_to_io_buffered_reader(img_arr):

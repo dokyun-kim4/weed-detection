@@ -11,12 +11,10 @@ def API_Initialize(API_Key, Region="all"):
     return api_endpoint
 
 
-def load_plant_data(Img_Path, Organ):
-    path = Img_Path
-    image_data = open(path, "rb")
-    data = {"organs": [Organ]}
+def load_plant_data(img_data, Organ):
+    data = {"organs": Organ}
     files = [
-        ("images", (image_data)),
+        ("images", (img_data)),
     ]
     return data, files
 
