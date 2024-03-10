@@ -1,13 +1,9 @@
 import cv2 as cv
-import numpy as np
-from sklearn.cluster import DBSCAN
+import time
 
 # Custom helpers
 import modules.cv_helpers as ch
 import modules.plantnet_helpers as ph
-
-# Define DBscan model
-dbscan_model = DBSCAN(eps=5, min_samples=10)
 
 # Read in image
 image = cv.imread("./img/img1.png")
@@ -23,21 +19,17 @@ img_denoised = cv.fastNlMeansDenoisingColored(
 )
 # Convert to binary image to apply clustering algorithm
 bnw_image = ch.green_to_bnw(img_denoised)
-white_points = ch.binary_to_cartesian(bnw_image)
-# TODO
-# ----- Perform DBscan -------
-clusters = ch.DBSCAN_clustering(white_points)
-# This works?
-#dbscan_model = DBSCAN(eps=5, min_samples=10)
+low_res_bnw_image, old_new_image_ratio = ch.refactor_to_lower_res(bnw_image)
+white_points_low_res = ch.binary_to_cartesian(low_res_bnw_image)
+white_points = white_points_low_res * old_new_image_ratio
+white_points = white_points.round()
 
-# train the model
-#dbscan_model.fit(white_points)
-# assign each data point to a cluster
-#clusters = dbscan_model.fit_predict(white_points)
-#print(dbscan_result)
+# ----- Perform DBscan -------
+start = time.time()
+clusters = ch.DBSCAN_clustering(white_points)
+print("--- %s seconds ---" % (time.time() - start))
 
 # Find bbox and center points
-
 bbox_and_center = [
     (bbox, center)
     for bbox, center in zip(

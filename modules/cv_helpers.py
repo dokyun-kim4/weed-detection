@@ -6,6 +6,7 @@ from io import BytesIO, BufferedReader
 import copy
 from sklearn.cluster import DBSCAN
 import matplotlib.pyplot as plt
+from math import sqrt
 
 
 def get_green(orig_img: np.ndarray) -> np.ndarray:
@@ -46,6 +47,15 @@ def green_to_bnw(green_areas_denoised: np.ndarray) -> np.ndarray:
                 bnw[i, j] = 255
     return bnw
 
+def refactor_to_lower_res(bnw_array: np.ndarray):
+    total_pixels = 20000
+
+    frac_x = bnw_array.shape[0]/bnw_array.shape[1]
+    new_x = round(sqrt(total_pixels/frac_x))
+    new_y = round(new_x * frac_x)
+    old_new_img_ratio = bnw_array.shape[0]/new_y
+    resized_img = cv2.resize(bnw_array, (new_x, new_y))
+    return resized_img, old_new_img_ratio
 
 def binary_to_cartesian(bnw_array: np.ndarray) -> list:
     """
@@ -84,7 +94,7 @@ def DBSCAN_clustering(white_points) -> list:
     -------
         A n by 1 arr
     """
-    dbscan_model = DBSCAN(eps=5, min_samples=10)
+    dbscan_model = DBSCAN(eps=10, min_samples=10, n_jobs=-1)
     dbscan_model.fit(white_points)
     dbscan_result = dbscan_model.fit_predict(white_points)
     return dbscan_result
