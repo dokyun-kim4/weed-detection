@@ -5,19 +5,22 @@ import json
 from pprint import pprint
 import cv2
 
-def API_Initialize(API_Key, Region):
+
+def API_Initialize(API_Key, Region="all"):
     api_endpoint = f"https://my-api.plantnet.org/v2/identify/{Region}?api-key={API_Key}"
     return api_endpoint
 
-def load_plant_data(Img_Path, Organ):
-    path = Img_Path
-    image_data = open(path, 'rb')
-    data = { 'organs': [Organ] }
-    files = [('images', (image_data)),]  
+
+def load_plant_data(img_data, Organ):
+    data = {"organs": Organ}
+    files = [
+        ("images", (img_data)),
+    ]
     return data, files
 
-def Send_API_Request(url, files, data):
-    req = requests.Request('POST', url=url, files=files, data=data)
+
+def Send_API_Request(api_endpoint, files, data):
+    req = requests.Request("POST", url=api_endpoint, files=files, data=data)
     prepared = req.prepare()
     s = requests.Session()
     response = s.send(prepared)

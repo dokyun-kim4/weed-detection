@@ -45,7 +45,7 @@ def green_to_bnw(green_areas_denoised: np.ndarray) -> np.ndarray:
         for j in range(bnw.shape[1]):
             if bnw[i, j] > 0:
                 bnw[i, j] = 255
-    return bnw
+    return np.stack((bnw, bnw, bnw), axis=2)
 
 def refactor_to_lower_res(bnw_array: np.ndarray):
     total_pixels = 20000
@@ -68,13 +68,13 @@ def binary_to_cartesian(bnw_array: np.ndarray) -> list:
     Returns:
         xys: 2d array that contains [x,y] points of all white areas
     """
+
     xys = []
     for y, row in enumerate(bnw_array):
         for x, value in enumerate(row):
             if value == 255:
                 xys.append([x, abs(y - bnw_array.shape[0])])
 
-    print("added")
     return np.array(xys)
 
 
@@ -139,7 +139,7 @@ def find_cluster_centers(white_points, dbscan_result):
     for cluster_label in np.unique(dbscan_result):
         cluster_points = white_points[dbscan_result == cluster_label]
         cluster_center = np.mean(cluster_points, axis=0)
-        cluster_centers.append(cluster_center)
+        cluster_centers.append(np.round(cluster_center, 0))
     return cluster_centers
 
 
@@ -153,7 +153,13 @@ def plot_boxes(image_with_boxes, bounding_boxes):
     """
     for box in bounding_boxes:
         (min_x, min_y), (max_x, max_y) = box
-        cv2.rectangle(image_with_boxes, (min_x, min_y), (max_x, max_y), (0, 0, 255), 2)
+        cv2.rectangle(
+            image_with_boxes,
+            (min_x, abs(min_y - image_with_boxes.shape[0])),
+            (max_x, abs(max_y - image_with_boxes.shape[0])),
+            (0, 0, 255),
+            2,
+        )
     return image_with_boxes
 
 
@@ -166,30 +172,41 @@ def plot_centers(image_with_centers, cluster_centers):
         cluster_centers (list): List of cluster centers.
     """
     for center in cluster_centers:
-        x, y = center.astype(int)
+        (x, y) = center.astype(int)
         cv2.circle(
-            image_with_centers, (x, y), radius=5, color=(255, 0, 0), thickness=-1
+            image_with_centers,
+            (x, abs(y - image_with_centers.shape[0])),
+            radius=5,
+            color=(255, 0, 0),
+            thickness=-1,
         )
     return image_with_centers
 
 
-def return_image_array(box, image):
+def return_image_array(box, image, min_size):
     """
     Returns an array of an image defined by the specified bounding box.
 
     Parameters:
         box (tuple): A tuple containing two tuples representing the coordinates of the top-left and bottom-right corners of the bounding box.
         image (numpy.ndarray): The input image from which the sub-array is extracted.
+        min_size (int): Minimum area the bounding box should have for it to be considered a full plant
 
     Returns:
         numpy.ndarray or None: An array of the image defined by the bounding box. Returns None if the box width or height is non-positive.
     """
     (min_x, min_y), (max_x, max_y) = box
+
+    min_y = abs(min_y - image.shape[0])
+    max_y = abs(max_y - image.shape[0])
     box_width = max_x - min_x
     box_height = max_y - min_y
-
+    area = box_width * box_width
     if box_width > 0 or box_height > 0:
-        return image[min_y:max_y, min_x:max_x]
+        if area > min_size:
+            return image[max_y:min_y, min_x:max_x]
+        else:
+            return None
 
 
 def arr_to_io_buffered_reader(img_arr):
