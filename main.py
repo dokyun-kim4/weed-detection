@@ -13,7 +13,7 @@ import modules.plantnet_helpers as ph
 SAFE_PLANTS = ["Lettuce"]
 
 load_dotenv()
-endpoint = ph.API_Initialize(os.getenv("2b109rJwhiLaSgff3H6wVCoT3u"))
+endpoint = ph.API_Initialize(os.getenv("KEY"))
 
 # Read in image
 image = cv.imread("./img/lettuce_test.png")
